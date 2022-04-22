@@ -12,7 +12,7 @@ public class Rope : MonoBehaviour
 	public bool isIncreasing { get; set; }
 	public bool isDecreasing { get; set; }
 
-	public Rigidbody2D connectedObject;
+	public Rigidbody connectedObject;
 	public float maxRopeSegmentLength = 1.0f;
 	public float ropeSpeed = 4.0f;
 	private LineRenderer lineRenderer;
@@ -49,9 +49,9 @@ public class Rope : MonoBehaviour
 
 		segment.transform.SetParent(this.transform, true);
 
-		Rigidbody2D segmentBody = segment.GetComponent<Rigidbody2D>();
+		Rigidbody segmentBody = segment.GetComponent<Rigidbody>();
 
-		SpringJoint2D segmentJoint = segment.GetComponent<SpringJoint2D>();
+		SpringJoint segmentJoint = segment.GetComponent<SpringJoint>();
 
 		if (segmentBody == null || segmentJoint == null)
 		{
@@ -63,23 +63,23 @@ public class Rope : MonoBehaviour
 
 		if (ropeSegments.Count == 1)
 		{
-			SpringJoint2D connectedObjectJoint = connectedObject.GetComponent<SpringJoint2D>();
+			SpringJoint connectedObjectJoint = connectedObject.GetComponent<SpringJoint>();
 
 			connectedObjectJoint.connectedBody = segmentBody;
-			connectedObjectJoint.distance = 0.1f;
+			connectedObjectJoint.maxDistance = 0.1f;
 
-			segmentJoint.distance = maxRopeSegmentLength;
+			segmentJoint.maxDistance = maxRopeSegmentLength;
 		}
 		else
 		{
 			GameObject nextSegment = ropeSegments[1];
 
-			SpringJoint2D nextSegmentJoint = nextSegment.GetComponent<SpringJoint2D>();
+			SpringJoint nextSegmentJoint = nextSegment.GetComponent<SpringJoint>();
 
 			nextSegmentJoint.connectedBody = segmentBody;
-			segmentJoint.distance = 0.0f;
+			segmentJoint.maxDistance = 0.0f;
 		}
-		segmentJoint.connectedBody = this.GetComponent<Rigidbody2D>();
+		segmentJoint.connectedBody = this.GetComponent<Rigidbody>();
 	}
 
 	public void RemoveRopeSegment()
@@ -92,9 +92,9 @@ public class Rope : MonoBehaviour
 		GameObject topSegment = ropeSegments[0];
 		GameObject nextSegment = ropeSegments[1];
 
-		SpringJoint2D nextSegmentJoint = nextSegment.GetComponent<SpringJoint2D>();
+		SpringJoint nextSegmentJoint = nextSegment.GetComponent<SpringJoint>();
 
-		nextSegmentJoint.connectedBody = this.GetComponent<Rigidbody2D>();
+		nextSegmentJoint.connectedBody = this.GetComponent<Rigidbody>();
 
 		ropeSegments.RemoveAt(0);
 		Destroy(topSegment);
@@ -104,32 +104,30 @@ public class Rope : MonoBehaviour
 	void Update()
 	{
 		GameObject topSegment = ropeSegments[0];
-		SpringJoint2D topSegmentJoint = topSegment.GetComponent<SpringJoint2D>();
+		SpringJoint topSegmentJoint = topSegment.GetComponent<SpringJoint>();
 
 		if (isIncreasing)
 		{
-			if (topSegmentJoint.distance >= maxRopeSegmentLength)
+			if (topSegmentJoint.maxDistance >= maxRopeSegmentLength)
 			{
 				CreateRopeSegment();
 			}
 			else
 			{
-				topSegmentJoint.distance += ropeSpeed *
-					Time.deltaTime;
+				topSegmentJoint.maxDistance += ropeSpeed * Time.deltaTime;
 			}
 
 		}
 
 		if (isDecreasing)
 		{
-			if (topSegmentJoint.distance <= 0.005f)
+			if (topSegmentJoint.maxDistance <= 0.005f)
 			{
 				RemoveRopeSegment();
 			}
 			else
 			{
-				topSegmentJoint.distance -= ropeSpeed *
-					Time.deltaTime;
+				topSegmentJoint.maxDistance -= ropeSpeed * Time.deltaTime;
 			}
 
 		}
@@ -142,11 +140,10 @@ public class Rope : MonoBehaviour
 
 			for (int i = 0; i < ropeSegments.Count; i++)
 			{
-				lineRenderer.SetPosition(i + 1,
-					ropeSegments[i].transform.position);
+				lineRenderer.SetPosition(i + 1, ropeSegments[i].transform.position);
 			}
 
-			SpringJoint2D connectedObjectJoint = connectedObject.GetComponent<SpringJoint2D>();
+			SpringJoint connectedObjectJoint = connectedObject.GetComponent<SpringJoint>();
 			lineRenderer.SetPosition( ropeSegments.Count + 1, connectedObject.transform.TransformPoint(connectedObjectJoint.anchor)
 			);
 		}
