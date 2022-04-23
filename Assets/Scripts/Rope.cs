@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-// The connected rope.
+
 public class Rope : MonoBehaviour
 {
 	public GameObject ropeSegmentPrefab;
@@ -43,7 +43,7 @@ public class Rope : MonoBehaviour
 
 	}
 
-	private void CreateRopeSegment()
+	public void CreateRopeSegment()
 	{
 		GameObject segment = (GameObject)Instantiate(ropeSegmentPrefab, this.transform.position, Quaternion.identity);
 
@@ -66,7 +66,7 @@ public class Rope : MonoBehaviour
 			SpringJoint connectedObjectJoint = connectedObject.GetComponent<SpringJoint>();
 
 			connectedObjectJoint.connectedBody = segmentBody;
-			connectedObjectJoint.maxDistance = 0.1f;
+			connectedObjectJoint.minDistance = 0.1f;
 
 			segmentJoint.maxDistance = maxRopeSegmentLength;
 		}
@@ -77,7 +77,7 @@ public class Rope : MonoBehaviour
 			SpringJoint nextSegmentJoint = nextSegment.GetComponent<SpringJoint>();
 
 			nextSegmentJoint.connectedBody = segmentBody;
-			segmentJoint.maxDistance = 0.0f;
+			segmentJoint.minDistance = 0.0f;
 		}
 		segmentJoint.connectedBody = this.GetComponent<Rigidbody>();
 	}
@@ -103,35 +103,6 @@ public class Rope : MonoBehaviour
 
 	void Update()
 	{
-		GameObject topSegment = ropeSegments[0];
-		SpringJoint topSegmentJoint = topSegment.GetComponent<SpringJoint>();
-
-		if (isIncreasing)
-		{
-			if (topSegmentJoint.maxDistance >= maxRopeSegmentLength)
-			{
-				CreateRopeSegment();
-			}
-			else
-			{
-				topSegmentJoint.maxDistance += ropeSpeed * Time.deltaTime;
-			}
-
-		}
-
-		if (isDecreasing)
-		{
-			if (topSegmentJoint.maxDistance <= 0.005f)
-			{
-				RemoveRopeSegment();
-			}
-			else
-			{
-				topSegmentJoint.maxDistance -= ropeSpeed * Time.deltaTime;
-			}
-
-		}
-
 		if (lineRenderer != null)
 		{
 			lineRenderer.positionCount = ropeSegments.Count + 2;
@@ -147,5 +118,7 @@ public class Rope : MonoBehaviour
 			lineRenderer.SetPosition( ropeSegments.Count + 1, connectedObject.transform.TransformPoint(connectedObjectJoint.anchor)
 			);
 		}
+
+		
 	}
 }
